@@ -1,34 +1,42 @@
-# STM32CubeIDE / Eclipse
+# STM32CubeIDE / CubeMX
 .metadata/
+.settings/
 *.launch
 .build/
 Debug/
 Release/
 *.project
 *.cproject
-.settings/
 *.mxproject
+.externalToolBuilders/
 
-# VS Code
+# VS Code / IDE
 .vscode/
+.idea/
 
-# Archivos comprimidos y binarios grandes
-*.zip
-*.rar
-*.tar.gz
-*.7z
-
-# Binaries / objetos / mapas
-*.bin
-*.hex
+# Build artifacts
+*.o
+*.obj
 *.elf
 *.axf
-*.o
+*.bin
+*.hex
 *.map
+*.list
 *.d
+*.dep
+*.su
+*.su?
 
-# OS / editores
+# Archives and large files
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# OS / editors
 Thumbs.db
 .DS_Store
 *~
 *.swp
+*.log
