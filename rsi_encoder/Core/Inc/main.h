@@ -1,0 +1,40 @@
+#ifndef __MAIN_H
+#define __MAIN_H
+
+#include <string.h>
+#include <stdio.h>
+#include "stm32f4xx_hal.h"
+#include <FreeRTOS.h>
+#include <task.h>
+#include <timers.h>
+#include <semphr.h>
+#include <queue.h>
+
+void System_Init(void);
+void Clock_Init(void);
+void UART1_Init(void);
+void GPIO_Init(void);
+
+#define DIR_A_PIN   GPIO_PIN_5
+#define DIR_B_PIN   GPIO_PIN_4
+#define DIR_GPIO GPIOB
+/*Free RTOS task*/
+void control_task(void*);
+void sample_task(void*);
+void parse_task(void*);
+
+void blinkFunction(TimerHandle_t );
+
+void Error_Handler(void);
+void TIM4_Init(void);
+void TIM2_Init(void);
+
+#define EMAX 1000
+#define UMAX 999
+#define SAMPLES 1000
+#define Vcons 83.5
+#define TS 0.01
+#define PPR 990
+#define CPR 1/PPR
+#define C1 60.0/CPR
+#endif /* __MAIN_H */

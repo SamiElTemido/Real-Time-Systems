@@ -1,0 +1,34 @@
+# STM32CubeIDE / Eclipse
+.metadata/
+*.launch
+.build/
+Debug/
+Release/
+*.project
+*.cproject
+.settings/
+*.mxproject
+
+# VS Code
+.vscode/
+
+# Archivos comprimidos y binarios grandes
+*.zip
+*.rar
+*.tar.gz
+*.7z
+
+# Binaries / objetos / mapas
+*.bin
+*.hex
+*.elf
+*.axf
+*.o
+*.map
+*.d
+
+# OS / editores
+Thumbs.db
+.DS_Store
+*~
+*.swp
