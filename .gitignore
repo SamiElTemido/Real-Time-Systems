@@ -4,6 +4,7 @@
 *.launch
 .build/
 Debug/
+Drivers/
 Release/
 *.project
 *.cproject
@@ -13,7 +14,9 @@ Release/
 # VS Code / IDE
 .vscode/
 .idea/
-
+.txt
+.s
+.gitignore
 # Build artifacts
 *.o
 *.obj
