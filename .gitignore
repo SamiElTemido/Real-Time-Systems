@@ -10,7 +10,8 @@ Release/
 *.cproject
 *.mxproject
 .externalToolBuilders/
-
+.id
+.launch
 # VS Code / IDE
 .vscode/
 .idea/
