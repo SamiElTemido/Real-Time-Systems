@@ -51,11 +51,12 @@ SemaphoreHandle_t semSample;
 
 int main(void)
 {
+
 	System_Init();
 	xqueue = xQueueCreate(64,sizeof(char));
 	semParse=xSemaphoreCreateBinary();
 	semSample=xSemaphoreCreateBinary();
-	xTimer = xTimerCreate("Blink", pdMS_TO_TICKS(500), pdTRUE, NULL, blinkFunction);
+	xTimer = xTimerCreate("Blink", pdMS_TO_TICKS(50), pdTRUE, NULL, blinkFunction);
 	xTimerStart(xTimer, 0);
 	xTaskCreate(control_task,"Control",configMINIMAL_STACK_SIZE*4, NULL, 4, NULL);
 	//xTaskCreate(sample_task, "Sample", configMINIMAL_STACK_SIZE*2, NULL, 0, NULL);
@@ -178,36 +179,52 @@ void parse_task(void *pvParameter)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    static uint8_t estado = 0;
+    static uint8_t estado = 0; // 4 estados (0, 1, 2, 3)
 
     if (htim->Instance == TIM1)
     {
         switch (estado)
         {
-            case 0: // ALTO (A8)
-                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
-                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+            // Secuencia: PA8=0, PA7=1, PA9=0, PB14=1
+            case 0          :
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+
                 estado = 1;
                 break;
 
-            case 1: // TODO APAGADO
-                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+            // Secuencia: PA8=1, PA7=0, PA9=0, PB14=1
+            case 1:
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+
                 estado = 2;
                 break;
 
-            case 2: // BAJO (A7)
+            // Secuencia: PA8=0, PA7=1, PA9=0, PB14=1 <-- ¡AQUÍ ESTÁ EL CAMBIO!
+            case 2:
                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+                // Antes era SET, ahora es RESET para ser el negado de PB14
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET); // <--- CAMBIO
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+
                 estado = 3;
                 break;
 
-            case 3: // TODO APAGADO
+            // Secuencia: PA8=0, PA7=1, PA9=1, PB14=0
+            case 3:
                 HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
-                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_RESET);
-                estado = 0;
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, GPIO_PIN_SET);
+                HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+                HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+
+                estado = 0; // Reinicia el ciclo
                 break;
         }
     }
 }
-

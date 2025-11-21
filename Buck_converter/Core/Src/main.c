@@ -39,7 +39,7 @@ SemaphoreHandle_t semSample;
      { 9.0, 1518 },
      { 10.0, 1680 },
      { 11.0, 1820 },
-     { 12.0, 1970 },
+     { 12.0, 1880 },
      { 13.0, 2110 },
      { 14.0, 2212 },
      { 15.0, 2295 },
@@ -130,7 +130,7 @@ void control_task(void *pvParameter)
 		else if (unsat < CMIN) DutyCycle = CMIN;
 		else DutyCycle = unsat;
 
-		__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, DutyCycle);
+		//__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, DutyCycle);
 
 		print_counter++;
 		if (print_counter >= PRINT_INTERVAL)

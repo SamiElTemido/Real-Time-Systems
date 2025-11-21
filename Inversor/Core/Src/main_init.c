@@ -75,31 +75,48 @@ void UART1_Init(void)
 
 void TIM1_Init(void)
 {
-    /* Habilitar reloj */
+    /* 1. Habilitar reloj del TIM1 y GPIOs (A y B) */
     __HAL_RCC_TIM1_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE(); // <--- IMPORTANTE: Habilitar GPIOB
 
-    /* Configurar pines A8 (alto) y A7 (bajo) como salida normal */
+    /* 2. Configurar pines como SALIDA DIGITAL (NO AF) */
     GPIO_InitTypeDef io = {0};
-    io.Pin = GPIO_PIN_7 | GPIO_PIN_8;
-    io.Mode = GPIO_MODE_OUTPUT_PP;
+    io.Mode = GPIO_MODE_OUTPUT_PP; // <--- MODO SALIDA NORMAL
     io.Pull = GPIO_NOPULL;
     io.Speed = GPIO_SPEED_FREQ_LOW;
+
+    // Pines que usa tu secuencia: PA7, PA8, PA9
+    io.Pin = GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
     HAL_GPIO_Init(GPIOA, &io);
 
-    /* Configurar TIM1 como temporizador base con interrupción */
+    // Pin que usa tu secuencia: PB14
+    io.Pin = GPIO_PIN_14;
+    HAL_GPIO_Init(GPIOB, &io); // <--- CONFIGURAR EL PIN EN GPIOB
+
+
+    /* 3. Configurar TIM1 como temporizador base (interrupción) */
     htim1.Instance = TIM1;
-    htim1.Init.Prescaler = 999;   // 100 MHz / (9999 + 1) = 10 kHz (0.1 ms por tick)
-    htim1.Init.Period = 416 ;    // 4 ms por interrupción
+
+    // Reloj de 100MHz / (999 + 1) = 100 kHz (tick de 0.01 ms)
+    htim1.Init.Prescaler = 999;
+
+    // Periodo: (415 + 1) * 0.01 ms = 4.16 ms
+    // 4.16 ms * 4 pasos = 16.64 ms (aprox 60 Hz)
+    htim1.Init.Period = 415;
+
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    HAL_TIM_Base_Init(&htim1);
+    htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim1.Init.RepetitionCounter = 0;
+    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    HAL_TIM_Base_Init(&htim1); // <--- FUNCIÓN BASE
 
-    /* Iniciar interrupción */
-    HAL_TIM_Base_Start_IT(&htim1);
-
-    /* Configurar prioridad y habilitar NVIC */
-    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 1, 0);
+    /* 4. Configurar prioridad y habilitar NVIC */
+    HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+
+    /* 5. Iniciar la interrupción */
+    HAL_TIM_Base_Start_IT(&htim1);
 }
 
 void ADC1_Init(void)
