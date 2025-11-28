@@ -98,24 +98,24 @@ void draw_angle_bars(float pitch, float roll) {
     // ==================== VALORES NUMÉRICOS ====================
     // Valor X arriba - alineado a la izquierda
     ssd1306_SetCursor(0, 0);
-    ssd1306_WriteString("X", Font_6x8, White);
+    ssd1306_WriteString("X", Font_7x10, White);
     sprintf(buffer, "%.0f", roll_normalized);
-    ssd1306_SetCursor(0, 8);
-    ssd1306_WriteString(buffer, Font_6x8, White);
+    ssd1306_SetCursor(0, 52);
+    ssd1306_WriteString(buffer, Font_7x10, White);
 
     // Valor Y arriba - alineado a la derecha
-    ssd1306_SetCursor(122, 0);
-    ssd1306_WriteString("Y", Font_6x8, White);
+    ssd1306_SetCursor(120, 0);
+    ssd1306_WriteString("Y", Font_7x10, White);
     sprintf(buffer, "%.0f", pitch_normalized);
 
     // Ajustar posición según el ancho del número
-    uint8_t x_pos = 122;
-    if (pitch_normalized < 0) x_pos -= 6;  // Espacio para el signo negativo
-    if (fabs(pitch_normalized) >= 100.0f) x_pos -= 12;  // 3 dígitos
-    else if (fabs(pitch_normalized) >= 10.0f) x_pos -= 6;  // 2 dígitos
+    uint8_t x_pos = 120;
+    if (pitch_normalized < 0) x_pos -= 7;  // Espacio para el signo negativo
+    if (fabs(pitch_normalized) >= 100.0f) x_pos -= 21;  // 3 dígitos
+    else if (fabs(pitch_normalized) >= 10.0f) x_pos -= 14;  // 2 dígitos
 
-    ssd1306_SetCursor(x_pos, 8);
-    ssd1306_WriteString(buffer, Font_6x8, White);
+    ssd1306_SetCursor(x_pos, 52);
+    ssd1306_WriteString(buffer, Font_7x10, White);
 }
 
 void draw_bubble_level(float roll, float pitch) {

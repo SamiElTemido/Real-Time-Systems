@@ -76,8 +76,8 @@ void oled_task(void* pvParameter) {
     while(1) {
         /* --- Lectura protegida de variables --- */
 //        if(xSemaphoreTake(xSem, portMAX_DELAY) == pdTRUE) {
-            local_pitch = theta_pitch;
-            local_roll = theta_roll;
+            local_pitch = theta_pitch+2;
+            local_roll = theta_roll-1;
 //            xSemaphoreGive(xSem);
 //        }
 
@@ -100,11 +100,11 @@ void oled_task(void* pvParameter) {
             case 2:
                 // Nivel de burbuja
                 draw_bubble_level(local_roll, local_pitch);
-                // Mostrar valores numéricos debajo
-                char buf[32];
-                ssd1306_SetCursor(10, 54);
-                sprintf(buf, "P:%.1f R:%.1f", local_pitch, local_roll);
-                ssd1306_WriteString(buf, Font_7x10, White);
+//                // Mostrar valores numéricos debajo
+//                char buf[32];
+//                ssd1306_SetCursor(10,56);
+//                sprintf(buf, "P:%.1f R:%.1f", local_pitch, local_roll);
+//                ssd1306_WriteString(buf, Font_11x18, White);
                 break;
 
             case 3:
