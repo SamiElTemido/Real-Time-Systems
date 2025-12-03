@@ -3,11 +3,10 @@ TimerHandle_t xTimer;
 SemaphoreHandle_t xSem;
 
 int idx_to_bin(int m);
-//freertos 6 de hecho
-unsigned volatile short int count =0;
-unsigned volatile short int k_new =0;
-unsigned volatile short int k_pre =0;
-unsigned volatile short int flag =0;
+unsigned volatile short int count = 0;
+unsigned volatile short int k_new = 0;
+unsigned volatile short int k_pre = 0;
+unsigned volatile short int flag = 0;
 
 const uint8_t NUM[16] = {
     /*0*/ 0b11111100,
@@ -48,25 +47,30 @@ int main(void)
 	return 0;
 }
 
-void main_task(void *pvParameters) {
+void main_task(void *pvParameters)
+{
     UNUSED(pvParameters);
     uint8_t col, fil;
-    int current_key = -1;    // -1  que no hay nada xd
+    int current_key = -1;
     int last_key_state = -1;
 
-    while (1) {
+    while (1)
+    {
         current_key = -1;
-        for (col = 1; col < 16; col <<= 1) {
-        	GPIOB->ODR = (GPIOB->ODR & ~0x0F) | col;
+        for (col = 1; col < 16; col <<= 1)
+        {
+            GPIOB->ODR = (GPIOB->ODR & ~0x0F) | col;
             vTaskDelay(1);
             fil = GPIOB->IDR & 0xF0;
-            if (fil != 0) {
+            if (fil != 0)
+            {
                 current_key = key(idx_to_bin(col), idx_to_bin(fil >> 4));
                 break;
             }
         }
 
-        if (current_key != -1 && last_key_state == -1) {
+        if (current_key != -1 && last_key_state == -1)
+        {
             k_new = current_key;
             flag = 1;
         }
@@ -76,49 +80,54 @@ void main_task(void *pvParameters) {
     }
 }
 
-void display_task(void *pvParameters){
-	UNUSED(pvParameters);
-	unsigned short int d1,d2,d3,d4,idx;
-	d1=d2=d3=d4=idx=0;
-
-	while(1){
-		if(flag==1){
-		d1=d2;
-		d2=d3;
-		d3=d4;
-		d4=k_new;
-		flag=0;
-		if((d1==1)&(d2==2)&(d3==3)&(d4==4))
-		{
-			xSemaphoreGive(xSem);
-			d1=d2=d3=d4=0;
-		}
-		}
-
-		for(idx=1;idx<16;idx<<=1)
-		{
-			unsigned short int val =(idx==1)? d4 : (idx==2)? d3 :(idx==4)? d2 : d1;
-			if (val > 15) val = 0;
-			GPIOA->ODR = (NUM[val])|(idx<<8) ;
-			vTaskDelay(pdMS_TO_TICKS(1));
-			GPIOA->ODR = 0;
-		}
-		vTaskDelay(pdMS_TO_TICKS(1));
-
-	}
-}
-
-void blinkFunction(TimerHandle_t xTimer)	//timers no deben bloquear al procesador //no ciclos infinitos
+void display_task(void *pvParameters)
 {
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    UNUSED(pvParameters);
+    unsigned short int d1, d2, d3, d4, idx;
+    d1 = d2 = d3 = d4 = idx = 0;
+
+    while (1)
+    {
+        if (flag == 1)
+        {
+            d1 = d2;
+            d2 = d3;
+            d3 = d4;
+            d4 = k_new;
+            flag = 0;
+            if ((d1 == 1) & (d2 == 2) & (d3 == 3) & (d4 == 4))
+            {
+                xSemaphoreGive(xSem);
+                d1 = d2 = d3 = d4 = 0;
+            }
+        }
+
+        for (idx = 1; idx < 16; idx <<= 1)
+        {
+            unsigned short int val = (idx == 1) ? d4 : (idx == 2) ? d3 : (idx == 4) ? d2 : d1;
+            if (val > 15) val = 0;
+            GPIOA->ODR = (NUM[val]) | (idx << 8);
+            vTaskDelay(pdMS_TO_TICKS(1));
+            GPIOA->ODR = 0;
+        }
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
 }
 
-int key(int row, int col){
-    // Comprueba que los índices estén dentro de los límites del array
-    if (row < 4 && col < 4) {
+/* Callback del temporizador: parpadeo de LED (no bloquear aquí) */
+void blinkFunction(TimerHandle_t xTimer)
+{
+    (void)xTimer;
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+}
+
+int key(int row, int col)
+{
+    if (row < 4 && col < 4)
+    {
         return keyboard[row][col];
     }
-    return 0; // Retorna nulo si hay un error
+    return 0;
 }
 
 void doorTask(void* pvParameters)

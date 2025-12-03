@@ -106,10 +106,11 @@ void sample_task(void *pvParameter)
         }
     }
 }
+/* Callback del temporizador: parpadeo de LED (no bloquear aquí) */
 void blinkFunction(TimerHandle_t xTimer)
 {
-	UNUSED(xTimer);
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    (void)xTimer;
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 void vApplicationIdleHook(void){
 

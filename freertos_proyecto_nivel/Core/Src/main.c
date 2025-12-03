@@ -10,14 +10,13 @@ I2C_HandleTypeDef hi2c1  = {0};
 
 uint8_t buflen = 0;
 
-/* Pitch */
+/* Estado del sensor y estimación de ángulos (pitch / roll) */
 float angle_acc_pitch = 0.0;
 float angle_gyro_y    = 0.0;
 float theta_pitch     = 0.0;
 float bias_pitch      = 0.0;
 int16_t cal_gyro_y    = 0;
 
-/* Roll */
 float angle_acc_roll = 0.0;
 float angle_gyro_x   = 0.0;
 float theta_roll     = 0.0;
@@ -39,15 +38,13 @@ int main(void)
     xTimerStart(xTimer, 10);
 
     xTaskCreate(oled_task,     "Oled",    1024, NULL, 2, NULL);
-    //xTaskCreate(sample_task,   "Sample",  configMINIMAL_STACK_SIZE*4, NULL, 4, NULL);
     xTaskCreate(transmit_task, "Transmit",1024, NULL, 2, NULL);
 
     vTaskStartScheduler();
     return 0;
 }
 
-/* ===================================================================================== */
-/*                                       OLED TASK                                        */
+/* OLED task: actualiza pantalla y dibuja indicador de actitud */
 void oled_task(void* pvParameter)
 {
     UNUSED(pvParameter);
@@ -60,12 +57,10 @@ void oled_task(void* pvParameter)
     float local_roll;
 
     while (1) {
-
         local_pitch = theta_pitch + 2;
         local_roll  = theta_roll  - 1;
 
         ssd1306_Fill(Black);
-
         draw_horizon(local_pitch, local_roll);
         draw_angle_bars(local_pitch, local_roll);
 
@@ -77,8 +72,7 @@ void oled_task(void* pvParameter)
     }
 }
 
-/* ===================================================================================== */
-/*                                   SAMPLE TASK                                 */
+/* Sample task: toma lecturas del MPU, predice y corrige con filtro de Kalman simple */
 void sample_task(void *pvParameters)
 {
     char bufIn[14];
@@ -113,7 +107,7 @@ void sample_task(void *pvParameters)
     {
         vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
-        /* --- PREDICCIÓN --- */
+        /* Predicción */
         omega_pitch = angle_gyro_y - bias_pitch;
         theta_pitch += TS * omega_pitch;
 
@@ -130,7 +124,7 @@ void sample_task(void *pvParameters)
         P_roll[1][0] -= TS * P_roll[1][1];
         P_roll[1][1] += TS * Q_gyroBias;
 
-        /* --- MEDICIÓN --- */
+        /* Medición */
         bufIn[0] = 0x3B;
 
         xSemaphoreTake(xI2C_Mutex, portMAX_DELAY);
@@ -163,7 +157,7 @@ void sample_task(void *pvParameters)
         angle_acc_pitch = atan2(x_accel, z_accel) * RADTODEG;
         angle_acc_roll  = atan2(y_accel, z_accel) * RADTODEG;
 
-        /* --- ACTUALIZACIÓN --- */
+        /* Actualización */
         double y_pitch = angle_acc_pitch - theta_pitch;
         double S_pitch = P_pitch[0][0] + R_measure;
 
@@ -276,9 +270,9 @@ void MPU_Calibrate(void)
     }
 }
 
-/* ===================================================================================== */
+/* Callback del temporizador: parpadeo de LED (no bloquear aquí) */
 void blinkFunction(TimerHandle_t xTimer)
 {
-    UNUSED(xTimer);
+    (void)xTimer;
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }

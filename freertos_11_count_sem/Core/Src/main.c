@@ -166,9 +166,11 @@ int key(int row, int col){
     return -1; // regresa -1 si hay un error
 }
 
+/* Callback del temporizador: parpadeo de LED (no bloquear aquí) */
 void blinkFunction(TimerHandle_t xTimer)
 {
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+    (void)xTimer;
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 }
 
 void display_open_blink(void) {

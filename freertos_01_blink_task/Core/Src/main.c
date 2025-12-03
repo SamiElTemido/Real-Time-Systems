@@ -11,7 +11,8 @@ int main(void)
 	return 0;
 }
 
-void myFirstTask(void *pvParameters){
+void myFirstTask(void *pvParameters)
+{
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitTypeDef pin = {0};
 	pin.Pin = GPIO_PIN_13;
@@ -19,14 +20,14 @@ void myFirstTask(void *pvParameters){
 	pin.Pull = GPIO_NOPULL;
 	pin.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOC, &pin);
+
 	while(1)
 	{
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-		//vTaskDelay(100/portTICK_PERIOD_MS);
-		for(uint32_t i=0;i<160000;i++);
+		for(uint32_t i = 0; i < 160000; i++);
 	}
-
 }
-void secondTask(void *pvParameters){
+void secondTask(void *pvParameters)
+{
 
 }
