@@ -33,4 +33,5 @@ void TIM2_Init(void);
 #define UMAX 999
 #define SAMPLES 1000
 #define Vcons 83.5
+#define TS 0.01
 #endif /* __MAIN_H */

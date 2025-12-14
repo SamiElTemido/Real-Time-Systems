@@ -43,7 +43,7 @@ void control_task(void *pvParameter)
     char buffer[64];
     unsigned char buflen;
 
-    const TickType_t xPeriod = pdMS_TO_TICKS(100  );
+    const TickType_t xPeriod = pdMS_TO_TICKS(10);
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
     while (1)
